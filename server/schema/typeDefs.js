@@ -40,6 +40,24 @@ const typeDefs = gql`
     recipeReviews: [RecipeReview!]!
     recipeReview(rating: Int!): RecipeReview!
   }
+  input AddRecipeInput {
+    title: String!
+    description: String!
+    createdAt: String!
+    originalURL: String = "https://examplerecipeurl.com"
+    dietaryRestrictions: DietaryRestrictions = Other
+  }
+
+  input UpdateRecipeTitleInput {
+    id: ID!
+    newTitle: String!
+  }
+
+  type Mutation {
+    addRecipe(input: AddRecipeInput!): Recipe!
+    updateRecipeTitle(input: UpdateRecipeTitleInput!): Recipe
+    deleteRecipe(id: ID!): Recipe
+  }
 
   enum DietaryRestrictions {
     VEGETARIAN
