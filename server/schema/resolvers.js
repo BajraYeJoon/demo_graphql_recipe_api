@@ -7,7 +7,7 @@ const resolvers = {
       //make an API call to the database here
       return recipeData;
     },
-    recipe: (parent, args) => {
+    recipe: (parent, args, context, info) => {
       const { id } = args;
       const recipe = _.find(recipeData, { id });
       return recipe;
@@ -27,8 +27,12 @@ const resolvers = {
   Mutation: {
     addRecipe: (parent, args) => {
       const recipe = args.input;
-      const lastId = recipeData[recipeData.length - 1].id;
-      recipe.id = String(Number(lastId) + 1);
+      if (recipeData.length === 0) {
+        recipe.id = "1"; // Assign the ID as "1" for the first recipe
+      } else {
+        const lastId = recipeData[recipeData.length - 1].id;
+        recipe.id = String(Number(lastId) + 1);
+      }
       recipeData.push(recipe);
       return recipe;
     },

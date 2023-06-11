@@ -9,10 +9,6 @@ const QUERY_ALL_RECIPES = gql`
       description
       createdAt
       originalURL
-      dietaryRestrictions
-      ingredients {
-        name
-      }
     }
   }
 `;
@@ -49,12 +45,20 @@ const ADD_RECIPE = gql`
       description
       createdAt
       originalURL
-      dietaryRestrictions
     }
   }
 `;
+
+const DELETE_RECIPE = gql`
+  mutation ($deleteRecipeId: ID!) {
+    deleteRecipe(id: $deleteRecipeId) {
+      id
+    }
+  }
+`;
+
 const PopulateDate = () => {
-  const { data, loading, error } = useQuery(QUERY_ALL_RECIPES);
+  const { data, loading, error, refetch } = useQuery(QUERY_ALL_RECIPES);
   const { data: recipeReviewData } = useQuery(QUERY_All_RECIPE_REVIEWS);
   const [fetchReview, { data: ReviewData, error: ReviewFetchError }] =
     useLazyQuery(GET_RECIPE_REVIEW);
@@ -66,9 +70,9 @@ const PopulateDate = () => {
   const [description, setDescription] = useState("");
   const [createdAt, setCreatedAt] = useState("");
   const [originalURL, setOriginalURL] = useState("");
-  const [dietaryRestrictions, setDietaryRestrictions] = useState("");
 
   const [addRecipe] = useMutation(ADD_RECIPE);
+  const [deleteRecipe] = useMutation(DELETE_RECIPE);
 
   if (loading) {
     return <h1>Loading...</h1>;
@@ -85,27 +89,26 @@ const PopulateDate = () => {
           type="text"
           placeholder="Recipe title"
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
         <input
           type="text"
           placeholder="Recipe desc"
           onChange={(e) => setDescription(e.target.value)}
+          required
         />
         <input
           type="text"
           placeholder="Recipe createdAt"
           onChange={(e) => setCreatedAt(e.target.value)}
+          required
         />
         <input
           type="text"
           placeholder="Recipe url"
           onChange={(e) => setOriginalURL(e.target.value)}
+          required
         />
-
-        <select onChange={(e) => setDietaryRestrictions(e.target.value)}>
-          <option value="VEGETARIAN">Other</option>
-          <option value="NON_VEGETARIAN">Vegan</option>
-        </select>
 
         <button
           onClick={() => {
@@ -116,10 +119,10 @@ const PopulateDate = () => {
                   description,
                   createdAt,
                   originalURL,
-                  dietaryRestrictions,
                 },
               },
             });
+            refetch();
           }}
         >
           Add Recipe
@@ -128,20 +131,28 @@ const PopulateDate = () => {
       {data &&
         data.recipes.map((recipe: any) => {
           return (
-            <div>
+            <div key={recipe.id}>
               <h1>{recipe.title}</h1>
               <p>{recipe.description}</p>
               <p>{recipe.createdAt}</p>
 
               <a href={recipe.originalURL}>{recipe.originalURL}</a>
-              <ul>
-                {recipe.ingredients.map((ingredient: any) => {
-                  return <li>{ingredient.name}</li>;
-                })}
-              </ul>
+              <button
+                onClick={() => {
+                  deleteRecipe({
+                    variables: {
+                      deleteRecipeId: recipe.id,
+                    },
+                  });
+                  refetch();
+                }}
+              >
+                Delete this recipe
+              </button>
             </div>
           );
         })}
+      <hr />
       {recipeReviewData &&
         recipeReviewData.recipeReviews.map((recipeReview: any) => {
           return (

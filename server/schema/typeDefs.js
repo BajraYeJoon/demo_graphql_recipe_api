@@ -7,8 +7,8 @@ const typeDefs = gql`
     description: String!
     createdAt: String!
     originalURL: String!
-    ingredients: [Ingredients!]!
-    dietaryRestrictions: DietaryRestrictions!
+    ingredients: [Ingredients!]
+    dietaryRestrictions: DietaryRestrictions
     relatedRecipes: [Recipe]
     recipeInstruction: [RecipeInstruction]
   }
